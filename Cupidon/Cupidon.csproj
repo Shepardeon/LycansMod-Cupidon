@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-	  <AssemblyName>LycansExamplePlugin</AssemblyName>
+	  <AssemblyName>Cupidon</AssemblyName>
 	  <Version>1.0.0</Version>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <LangVersion>latest</LangVersion>
