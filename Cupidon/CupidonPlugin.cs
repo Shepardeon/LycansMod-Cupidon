@@ -1,5 +1,8 @@
 ﻿using BepInEx;
-using TMPro;
+using Helpers.Collections;
+using UnityEngine;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace LycansModTemplate
@@ -27,15 +30,32 @@ namespace LycansModTemplate
             var ui = self.gameUI.gameSettingsMenu;
             var bRoyale = ui.gameObject.transform.Find("LayoutGroup/Body/TaskPanel/Holder/LayoutGroup/BattleRoyaleSetting");
 
+            // TODO : à déplacer à un endroit où sont charger les traductions
+            var table = LocalizationSettings.StringDatabase.GetTable("UI Text");
+            table.AddEntry("CUPIDON_CUPIDON_MODE", "Cupidon Mode");
+
             if (bRoyale != null)
             {
                 var clone = Instantiate(bRoyale.gameObject, bRoyale.parent.transform);
-                var text = clone.transform.Find("LayoutGroup/SettingNameText").GetComponent<TextMeshProUGUI>();
-                text.text = "Mode Cupidon";
+                var text = clone.transform.Find("LayoutGroup/SettingNameText").GetComponent<LocalizeStringEvent>();
+                Log.Info($"{text != null} => {text}");
+                text.SetEntry("CUPIDON_CUPIDON_MODE");
 
                 var toggle = clone.transform.Find("LayoutGroup/ToggleContainer/Toggle").GetComponent<Toggle>();
                 Log.Info($"{toggle != null} => {toggle}");
-                toggle.onValueChanged.RemoveAllListeners();
+
+                toggle.GetComponents(typeof(Component)).ForEach(c => Log.Info(c.ToString()));
+
+                Log.Info("Clone ------------------");
+                clone.GetComponents(typeof(Component)).ForEach(c => Log.Info(c.ToString()));
+
+                // Disable default behaviour
+                for (int i = 0; i < toggle.onValueChanged.GetPersistentEventCount(); i++)
+                {
+                    toggle.onValueChanged.SetPersistentListenerState(i, UnityEngine.Events.UnityEventCallState.Off);
+                }
+
+
                 toggle.onValueChanged.AddListener((val) =>
                 {
                     Log.Info($"Cupidon is {val}");
