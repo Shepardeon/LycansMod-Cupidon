@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 
-namespace LycansModTemplate
+namespace Cupidon
 {
     internal static class Log
     {
