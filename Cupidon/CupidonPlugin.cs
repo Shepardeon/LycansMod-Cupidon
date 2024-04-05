@@ -1,12 +1,6 @@
 ﻿using BepInEx;
 using Cupidon.Patchs;
 using Cupidon.Services;
-using Cupidon.Unity;
-using Fusion;
-using HarmonyLib;
-using Helpers.Collections;
-using System;
-using System.Linq;
 
 namespace Cupidon
 {
@@ -19,7 +13,7 @@ namespace Cupidon
         public const string PLUGIN_NAME = "Cupidon";
         public const string PLUGIN_VERSION = "1.0.0";
 
-        internal static CupidonBehaviour? Cupidon { get; set; }
+        internal static UIToggle? CupidonUI { get; set; }
 
         private void Awake()
         {

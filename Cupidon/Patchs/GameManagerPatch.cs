@@ -1,7 +1,4 @@
 ﻿using Cupidon.Services;
-using Cupidon.Unity;
-using Fusion;
-using System.Linq;
 using UnityEngine;
 
 namespace Cupidon.Patchs
@@ -22,12 +19,10 @@ namespace Cupidon.Patchs
         {
             orig(self);
 
-            var cupidon = CupidonPlugin.Cupidon;
-            if (cupidon == null) return;
-            cupidon.CupidonToggle = UIService.Instance.AddToggleToGameSettings("CUPIDON_CUPIDON_MODE", (value) =>
+            CupidonPlugin.CupidonUI = UIService.Instance.AddToggleToGameSettings("CUPIDON_CUPIDON_MODE", (value) =>
             {
                 Log.Info((value ? "Enabled" : "Disabled") + " cupidon mode");
-                cupidon.UpdateCupidonMode(value);
+                typeof(GameManager).GetMethod("UpdateCupidonMode")?.Invoke(self, new object[] { value });
                 PlayerPrefs.SetInt("CUPIDON_GAME_SETTINGS_ENABLED", value ? 1 : 0);
             });
         }

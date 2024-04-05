@@ -20,12 +20,9 @@ namespace Cupidon.Patchs
         {
             orig(self);
 
-            var cupidon = CupidonPlugin.Cupidon;
-            if (cupidon == null) return;
-
             if (PlayerPrefs.HasKey("CUPIDON_GAME_SETTINGS_ENABLED"))
             {
-                var toggle = cupidon.CupidonToggle;
+                var toggle = CupidonPlugin.CupidonUI;
                 if (toggle == null) return;
                 toggle.UnityToggle.SetIsOnWithoutNotify(PlayerPrefs.GetInt("CUPIDON_GAME_SETTINGS_ENABLED") == 1);
             }
@@ -35,7 +32,7 @@ namespace Cupidon.Patchs
         {
             orig(self);
 
-            var toggle = CupidonPlugin.Cupidon?.CupidonToggle;
+            var toggle = CupidonPlugin.CupidonUI;
             if (toggle == null) return;
             toggle.UnityToggle.isOn = false;
         }
