@@ -50,6 +50,16 @@ namespace Cupidon
             Log.Info("Initialization done!");
         }
 
+        private void Start()
+        {
+            Log.Info("Registering networked objetcs...");
+            var prefab = new GameObject("NetworkCupidon");
+            prefab.AddComponent<NetworkObject>();
+            prefab.AddComponent<NetworkedCupidon>();
+            NetworkObjectService.Instance.RegisterNetworkObject(prefab, $"{PLUGIN_GUID}.NetworkCupidon");
+            DontDestroyOnLoad(prefab);
+        }
+
         private void GameManager_Spawned(On.GameManager.orig_Spawned orig, GameManager self)
         {
             orig(self);
@@ -57,12 +67,6 @@ namespace Cupidon
             if (self.Runner.SessionInfo.IsOpen)
             {
                 Log.Info("Session is open.");
-
-                Log.Info("Registering networked objetcs...");
-                var prefab = new GameObject("NetworkCupidon");
-                prefab.AddComponent<NetworkObject>();
-                prefab.AddComponent<NetworkedCupidon>();
-                NetworkObjectService.Instance.RegisterNetworkObject(prefab, $"{PLUGIN_GUID}.NetworkCupidon");
 
                 if (self.Runner.IsServer)
                 {
@@ -93,8 +97,6 @@ namespace Cupidon
                 Cupidon.PrintCupidonMode();
             }
         }
-
-
 
         private void OnDestroy()
         {

@@ -1,4 +1,5 @@
-﻿using Fusion;
+﻿using Cupidon.Extensions;
+using Fusion;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,13 +27,18 @@ namespace Cupidon.Services
 
         public void RegisterNetworkObject(GameObject prefab, string uniqueKey)
         {
+            if (_prefabs.ContainsKey(uniqueKey))
+            {
+                throw new InvalidOperationException($"Key '{uniqueKey}' existed alreadly");
+            }
+
             if (!prefab.TryGetComponent<NetworkObject>(out var netObj))
             {
                 throw new MissingComponentException("Prefab is missing 'NetworkObject' component!");
             }
 
             netObj.NetworkedBehaviours = prefab.GetComponents<NetworkBehaviour>();
-            netObj.NetworkGuid = new NetworkObjectGuid(Guid.NewGuid().ToString());
+            netObj.NetworkGuid = new NetworkObjectGuid(uniqueKey.ToGuid().ToString());
 
             var source = new NetworkPrefabSourceStatic()
             {
@@ -41,14 +47,7 @@ namespace Cupidon.Services
 
             if (!NetworkProjectConfig.Global.PrefabTable.TryAdd(netObj.NetworkGuid, source, out var id))
             {
-                throw new ApplicationException("Could not add prefab to registered prefabs");
-            }
-
-            if (_prefabs.ContainsKey(uniqueKey))
-            {
-                Log.Warning($"Key '{uniqueKey}' existed alreadly and was replaced!");
-                _prefabs[uniqueKey] = id;
-                return;
+                throw new ApplicationException("Could not add prefab to registered prefabs, was it already present?");
             }
 
             _prefabs.Add(uniqueKey, id);
