@@ -22,7 +22,7 @@ namespace Cupidon.Patchs
             CupidonPlugin.CupidonUI = UIService.Instance.AddToggleToGameSettings("CUPIDON_CUPIDON_MODE", (value) =>
             {
                 Log.Info((value ? "Enabled" : "Disabled") + " cupidon mode");
-                typeof(GameManager).GetMethod("UpdateCupidonMode")?.Invoke(self, new object[] { value });
+                CupidonPlugin.Cupidon?.UpdateCupidonMode(value);
                 PlayerPrefs.SetInt("CUPIDON_GAME_SETTINGS_ENABLED", value ? 1 : 0);
             });
         }

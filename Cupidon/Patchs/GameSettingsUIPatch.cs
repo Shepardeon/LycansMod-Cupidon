@@ -22,9 +22,7 @@ namespace Cupidon.Patchs
 
             if (PlayerPrefs.HasKey("CUPIDON_GAME_SETTINGS_ENABLED"))
             {
-                var toggle = CupidonPlugin.CupidonUI;
-                if (toggle == null) return;
-                toggle.UnityToggle.SetIsOnWithoutNotify(PlayerPrefs.GetInt("CUPIDON_GAME_SETTINGS_ENABLED") == 1);
+                CupidonPlugin.CupidonUI?.UnityToggle.SetIsOnWithoutNotify(PlayerPrefs.GetInt("CUPIDON_GAME_SETTINGS_ENABLED") == 1);
             }
         }
 
