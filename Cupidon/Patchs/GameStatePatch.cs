@@ -1,5 +1,6 @@
 ﻿using Cupidon.Extensions;
 using Fusion;
+using System.Linq;
 using static GameState;
 
 namespace Cupidon.Patchs
@@ -25,12 +26,32 @@ namespace Cupidon.Patchs
             {
                 if (previousState == EGameState.Pregame)
                 {
-                    CupidonPlugin.Cupidon?.ResetLovers();
-                    CupidonPlugin.Cupidon?.UpdateLoversWin(false);
-
                     onPlayEnter(previousState);
 
-                    CupidonPlugin.Cupidon?.InitLovers();
+                    if (self.Runner.IsServer)
+                    {
+                        CupidonPlugin.Cupidon?.ResetLovers();
+                        CupidonPlugin.Cupidon?.UpdateLoversWin(false);
+                        CupidonPlugin.Cupidon?.InitLovers();
+                    }
+
+                    if (self.Runner.IsPlayer)
+                    {
+                        var localPlayer = PlayerController.Local;
+                        if (localPlayer != null && localPlayer.IsLover())
+                        {
+                            var other = PlayerRegistry.Where(p => p != localPlayer && p.IsLover())
+                                .Select(p => p.PlayerData.Username)
+                                .FirstOrDefault();
+
+                            CupidonPlugin.UpdateLoverText(other.ToString() ?? "");
+                            CupidonPlugin.CupidonText?.TextGO.SetActive(true);
+                        }
+                        else
+                        {
+                            CupidonPlugin.CupidonText?.TextGO.SetActive(false);
+                        }
+                    }
                 }
                 else
                 {

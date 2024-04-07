@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Localization.Components;
@@ -11,6 +12,13 @@ namespace Cupidon.Services
         public GameObject ToggleGO { get; set; } = null!;
         public LocalizeStringEvent LocalizeString { get; set; } = null!;
         public Toggle UnityToggle { get; set; } = null!;
+    }
+
+    internal class UIText
+    {
+        public GameObject TextGO { get; set; } = null!;
+        public LocalizeStringEvent LocalizeString { get; set; } = null!;
+        public TextMeshProUGUI TMPText { get; set; } = null!;
     }
 
     internal class UIService
@@ -34,6 +42,15 @@ namespace Cupidon.Services
             toggle.UnityToggle.onValueChanged.AddListener(onValueChanged);
 
             return toggle;
+        }
+
+        public UIText AddTextToMainUI(string localizationEntry, Color? textColor = null)
+        {
+            var uiText = CreateGameTextClone() ?? throw new Exception("Could not create Text element");
+            uiText.LocalizeString.SetEntry(localizationEntry);
+            uiText.TMPText.color = textColor ?? Color.white;
+
+            return uiText;
         }
 
         private UIToggle? CreateGameSettingsToggleClone()
@@ -72,6 +89,35 @@ namespace Cupidon.Services
                 ToggleGO = clone.gameObject,
                 LocalizeString = textToggle,
                 UnityToggle = uiToggle,
+            };
+        }
+
+        private UIText? CreateGameTextClone()
+        {
+            var orig = GameManager.Instance.gameUI.transform.Find("Canvas/Game/Role");
+
+            if (orig == null)
+            {
+                Log.Error("Could not get a Text copy to duplicate!");
+                return null;
+            }
+
+            var clone = UnityEngine.Object.Instantiate(orig, orig.parent);
+            var localizedString = clone.GetComponent<LocalizeStringEvent>();
+            var renderText = clone.GetComponent<TextMeshProUGUI>();
+
+            if (localizedString == null || renderText == null)
+            {
+                Log.Error("Copied object does not contains required text or localized string");
+                UnityEngine.Object.Destroy(clone.gameObject);
+                return null;
+            }
+
+            return new UIText
+            {
+                TextGO = clone.gameObject,
+                LocalizeString = localizedString,
+                TMPText = renderText,
             };
         }
     }

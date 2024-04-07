@@ -126,12 +126,18 @@ namespace Cupidon.Unity
         public bool CheckLoversSameTeam()
         {
             if (!CupidonMode || CupidonLovers.Count == 0)
+            {
+                Log.Debug("Team check :");
+                Log.Debug($"CupidonMode {CupidonMode}");
+                Log.Debug($"Number of lovers {CupidonLovers.Count}");
                 return true;
+            }
 
-            var p1 = PlayerRegistry.GetPlayer(CupidonLovers.ElementAt(0));
-            var p2 = PlayerRegistry.GetPlayer(CupidonLovers.ElementAt(1));
+            var players = PlayerRegistry.Where(p => p.IsLover()).ToList();
+            var p1 = players[0].Role == PlayerController.PlayerRole.Wolf;
+            var p2 = players[1].Role == PlayerController.PlayerRole.Wolf;
 
-            return !(p1.IsWolf ^ p2.IsWolf);
+            return !(p1 ^ p2);
         }
 
         public bool CheckLover(PlayerRef player)

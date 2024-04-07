@@ -36,6 +36,11 @@ namespace Cupidon.Patchs
                 CupidonPlugin.Cupidon?.UpdateCupidonMode(value);
                 PlayerPrefs.SetInt("CUPIDON_GAME_SETTINGS_ENABLED", value ? 1 : 0);
             });
+
+            CupidonPlugin.CupidonText = UIService.Instance.AddTextToMainUI("CUPIDON_LOVER_ALLY", CupidonPlugin.LoverColor);
+            CupidonPlugin.CupidonText.TextGO.transform.position = new Vector3(5, 410, 0);
+            CupidonPlugin.CupidonText.TextGO.transform.localScale = new Vector3(0.75f, 0.75f, 1);
+            CupidonPlugin.CupidonText.TextGO.SetActive(false);
         }
 
         private static void GameManager_Spawned(On.GameManager.orig_Spawned orig, GameManager self)
@@ -62,11 +67,6 @@ namespace Cupidon.Patchs
 
         private static void GameManager_CheckForEndGame(On.GameManager.orig_CheckForEndGame orig, GameManager self)
         {
-            if (CupidonPlugin.Cupidon != null)
-            {
-                Log.Debug($"Cupidon mode : {CupidonPlugin.Cupidon.CupidonMode}");
-            }
-
             // Si en battle royale ou sans le mode cupidon, on effectue la routine de victoire habituelle
             if (CupidonPlugin.Cupidon == null || !CupidonPlugin.Cupidon.CupidonMode || self.BattleRoyale)
             {
@@ -84,30 +84,68 @@ namespace Cupidon.Patchs
             }
 
             var playerAlive = PlayerRegistry.Where(p => !p.IsDead).ToList();
-            var lovers = playerAlive.Where(p => p.IsLover()).ToList();
+
+            var numWolves = playerAlive.Count(p => p.Role == PlayerController.PlayerRole.Wolf);
+            var numLovers = playerAlive.Count(p => p.IsLover());
+
+            var numWolfLovers = playerAlive.Count(p => p.IsLover() && p.Role == PlayerController.PlayerRole.Wolf);
+
+            var numNonWolves = playerAlive.Count - numWolves;
+            var numNonWolvesLovers = numLovers - numWolfLovers;
 
             Log.Debug($"Num player alive {playerAlive.Count}");
-            Log.Debug($"Num lovers alive {lovers.Count}");
+            Log.Debug($"Num lovers alive {numLovers}");
             Log.Debug($"Num lovers same team {CupidonPlugin.Cupidon.CheckLoversSameTeam()}");
 
-            // Les amoureux sont les seuls gagnants si :
-            // - Ce sont les deux derniers survivants
-            // - Les survivants sont un loup et un villageois
-            // TODO : Revoir potentiellement les règles de victoire
-            if (lovers.Count == 2 && playerAlive.Count == lovers.Count && !CupidonPlugin.Cupidon.CheckLoversSameTeam())
+            if (numLovers == 2)
             {
-                CupidonPlugin.Cupidon.UpdateLoversWin(true);
-                GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                if (numLovers == playerAlive.Count && !CupidonPlugin.Cupidon.CheckLoversSameTeam())
+                {
+                    CupidonPlugin.Cupidon.UpdateLoversWin(true);
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                }
+                else if (numWolves == 0)
+                {
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                }
+                else if (numNonWolves == 0)
+                {
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: true);
+                }
+                else if (numWolves >= numNonWolves && GameManager.State.Current == GameState.EGameState.Meeting)
+                {
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: true);
+                }
             }
+            else
+            {
+                numWolves -= numWolfLovers;
+                numNonWolves -= numNonWolvesLovers;
 
-            // Dans le cas contraire, on effectue la routine habituelle
-            orig(self);
+                if (numWolves <= 0)
+                {
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                }
+                else if (numNonWolves <= 0)
+                {
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: true);
+                }
+                else if (numWolves >= numNonWolves && GameManager.State.Current == GameState.EGameState.Meeting)
+                {
+                    GameManager.Rpc_EndGame(self.Runner, wolfWin: true);
+                }
+            }
         }
 
         private unsafe static void GameManager_Rpc_EndGame(On.GameManager.orig_Rpc_EndGame orig, NetworkRunner runner, bool wolfWin)
         {
+            Color villagerColor = GameUI.VillagerColor;
+            Color wolfColor = GameUI.WolfColor;
+            Color loverColor = CupidonPlugin.LoverColor;
+
             if (CupidonPlugin.Cupidon == null || !CupidonPlugin.Cupidon.CupidonMode || !CupidonPlugin.Cupidon.LoversWin)
             {
+                GameManager.Instance.gameUI.wolvesRecap.color = GameUI.WolfColor;
                 orig(runner, wolfWin);
                 return;
             }
@@ -159,15 +197,17 @@ namespace Cupidon.Patchs
 
             #endregion Required Boilerplate
 
-            Color villagerColor = GameUI.VillagerColor;
-            Color wolfColor = GameUI.WolfColor;
             bool isLover = PlayerController.Local.IsLover();
 
             Color color = isLover ? villagerColor : wolfColor;
             string clip = isLover ? "VICTORY" : "DEFEAT";
 
+            string loversName = string.Join(" / ", PlayerRegistry.Where(x => x.IsLover()).Select(x => x.PlayerData.Username));
+            GameManager.Instance.gameUI.wolvesRecap.color = CupidonPlugin.LoverColor;
+
             AudioManager.Play(clip, AudioManager.MixerTarget.SFX, 0.5f);
             string translateKey = "CUPIDON_LOVERS_VICTORY";
+            GameManager.Instance.gameUI.UpdateWolvesRecap(loversName);
             GameManager.Instance.gameUI.UpdateTransitionText(translateKey, color);
             GameManager.Instance.gameUI.ShowWolvesRecap(active: true);
             GameManager.Instance.gameUI.StartFade(fadeIn: true);

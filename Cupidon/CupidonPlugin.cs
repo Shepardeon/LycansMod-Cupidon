@@ -16,10 +16,10 @@ namespace Cupidon
         public const string PLUGIN_NAME = "Cupidon";
         public const string PLUGIN_VERSION = "1.0.0";
 
-        public static readonly Color LoverColor = new Color(0.85f, 0.34f, 1f);
+        public static readonly Color LoverColor = new Color(0.83f, 0.09f, 0.63f);
 
         internal static UIToggle? CupidonUI { get; set; }
-
+        internal static UIText? CupidonText { get; set; }
         internal static NetworkObject? NetworkObject { get; set; }
         internal static NetworkedCupidon? Cupidon
         {
@@ -42,6 +42,7 @@ namespace Cupidon
             var languageService = LanguageService.Instance;
             languageService.AddEntry("CUPIDON_CUPIDON_MODE", "Activer les amoureux");
             languageService.AddEntry("CUPIDON_LOVERS_VICTORY", "Amoureux unis à vie");
+            languageService.AddEntry("CUPIDON_LOVER_ALLY", "Amoureux : {0}");
             languageService.HookLocalization();
 
             Log.Info("Hooking into game...");
@@ -67,6 +68,15 @@ namespace Cupidon
             GameManagerPatch.Unhook();
             GameSettingsUIPatch.Unhook();
             GameStatePatch.Unhook();
+        }
+
+        public static void UpdateLoverText(string loverName)
+        {
+            if (CupidonText == null)
+                return;
+
+            CupidonText.LocalizeString.StringReference.Arguments = new object[1] { loverName };
+            CupidonText.LocalizeString.RefreshString();
         }
     }
 }
