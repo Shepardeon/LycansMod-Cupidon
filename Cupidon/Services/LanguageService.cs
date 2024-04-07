@@ -36,7 +36,7 @@ namespace Cupidon.Services
 
         private void PopulateStringDatabase()
         {
-            Log.Info("Populating string database...");
+            Log.Debug("Populating string database...");
 
             var table = LocalizationSettings.StringDatabase.GetTable("UI Text");
             foreach (var kvp in _translationDict)
@@ -44,7 +44,7 @@ namespace Cupidon.Services
                 table.AddEntry(kvp.Key, kvp.Value);
             }
 
-            Log.Info("Done!");
+            Log.Debug("Done!");
         }
     }
 }

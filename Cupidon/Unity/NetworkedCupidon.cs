@@ -13,27 +13,26 @@ namespace Cupidon.Unity
 
         private void Awake()
         {
-            Log.Info("NetworkedObject Awake");
+            Log.Debug("NetworkedObject Awake");
         }
 
         public override void Spawned()
         {
-            Log.Info("NetworkedObject Spawned");
+            Log.Debug("NetworkedObject Spawned");
             if (Runner.IsClient)
             {
-                Log.Info("Tu as eu ton bel objet bébou <3");
                 CupidonPlugin.NetworkObject = GetComponent<NetworkObject>();
             }
         }
 
         public void OnDestroy()
         {
-            Log.Info("NetworkedObject Destroyed");
+            Log.Debug("NetworkedObject Destroyed");
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            Log.Info("NetworkedObject Despawned");
+            Log.Debug("NetworkedObject Despawned");
             Destroy(gameObject);
         }
 
@@ -63,13 +62,9 @@ namespace Cupidon.Unity
         {
             if (Runner.IsServer && GameManager.State.Current == GameState.EGameState.Pregame)
             {
+                Log.Debug($"Cupidon value update: {value}");
                 CupidonMode = value;
             }
-        }
-
-        public void PrintCupidonMode()
-        {
-            Log.Info($"CupidonMode: {CupidonMode}");
         }
     }
 }

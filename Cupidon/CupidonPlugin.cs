@@ -45,8 +45,6 @@ namespace Cupidon
             GameManagerPatch.Hook();
             GameSettingsUIPatch.Hook();
 
-            On.GameManager.Spawned += GameManager_Spawned;
-
             Log.Info("Initialization done!");
         }
 
@@ -58,44 +56,6 @@ namespace Cupidon
             prefab.AddComponent<NetworkedCupidon>();
             NetworkObjectService.Instance.RegisterNetworkObject(prefab, $"{PLUGIN_GUID}.NetworkCupidon");
             DontDestroyOnLoad(prefab);
-        }
-
-        private void GameManager_Spawned(On.GameManager.orig_Spawned orig, GameManager self)
-        {
-            orig(self);
-
-            if (self.Runner.SessionInfo.IsOpen)
-            {
-                Log.Info("Session is open.");
-
-                if (self.Runner.IsServer)
-                {
-                    Log.Info("Retrieving network object...");
-                    var netObjRef = NetworkObjectService.Instance.GetNetworkObject($"{PLUGIN_GUID}.NetworkCupidon");
-
-                    Log.Info("Spawning networked object...");
-                    NetworkObject = self.Runner.Spawn(netObjRef);
-                }
-                else
-                {
-                    Log.Info("Inchallah tu vas reçevoir un objet, un jour...");
-                }
-            }
-            else
-            {
-                Log.Info("Session was closed :(");
-            }
-        }
-
-        private void Update()
-        {
-            if (Cupidon == null) return;
-
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                Log.Info("Trying to print CupidonMode...");
-                Cupidon.PrintCupidonMode();
-            }
         }
 
         private void OnDestroy()
