@@ -4,7 +4,6 @@ using Fusion;
 using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Cupidon.Patchs
 {
@@ -99,10 +98,18 @@ namespace Cupidon.Patchs
 
             if (numLovers == 2)
             {
-                if (numLovers == playerAlive.Count && !CupidonPlugin.Cupidon.CheckLoversSameTeam())
+                if (!CupidonPlugin.Cupidon.CheckLoversSameTeam())
                 {
-                    CupidonPlugin.Cupidon.UpdateLoversWin(true);
-                    GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                    if (numLovers == playerAlive.Count)
+                    {
+                        CupidonPlugin.Cupidon.UpdateLoversWin(true);
+                        GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                    }
+                    else if (numLovers >= numNonWolves && numWolves == 1)
+                    {
+                        CupidonPlugin.Cupidon.UpdateLoversWin(true);
+                        GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
+                    }
                 }
                 else if (numWolves == 0)
                 {
@@ -143,7 +150,7 @@ namespace Cupidon.Patchs
             Color wolfColor = GameUI.WolfColor;
             Color loverColor = CupidonPlugin.LoverColor;
 
-            if (CupidonPlugin.Cupidon == null || !CupidonPlugin.Cupidon.CupidonMode || !CupidonPlugin.Cupidon.LoversWin)
+            if (CupidonPlugin.Cupidon == null || !CupidonPlugin.Cupidon.CupidonMode || CupidonPlugin.Cupidon.CheckLoversSameTeam())
             {
                 GameManager.Instance.gameUI.wolvesRecap.color = GameUI.WolfColor;
                 orig(runner, wolfWin);
@@ -198,16 +205,41 @@ namespace Cupidon.Patchs
             #endregion Required Boilerplate
 
             bool isLover = PlayerController.Local.IsLover();
+            bool isWolf = PlayerController.Local.Role == PlayerController.PlayerRole.Wolf;
+            Color color;
+            string clip;
+            string translateKey;
 
-            Color color = isLover ? villagerColor : wolfColor;
-            string clip = isLover ? "VICTORY" : "DEFEAT";
+            if (CupidonPlugin.Cupidon.LoversWin)
+            {
+                color = isLover ? villagerColor : wolfColor;
+                clip = isLover ? "VICTORY" : "DEFEAT";
 
-            string loversName = string.Join(" / ", PlayerRegistry.Where(x => x.IsLover()).Select(x => x.PlayerData.Username));
-            GameManager.Instance.gameUI.wolvesRecap.color = CupidonPlugin.LoverColor;
+                string loversName = string.Join(" / ", PlayerRegistry.Where(x => x.IsLover()).Select(x => x.PlayerData.Username));
+                GameManager.Instance.gameUI.wolvesRecap.color = CupidonPlugin.LoverColor;
+
+                translateKey = "CUPIDON_LOVERS_VICTORY";
+                GameManager.Instance.gameUI.UpdateWolvesRecap(loversName);
+            }
+            else
+            {
+                GameManager.Instance.gameUI.wolvesRecap.color = GameUI.WolfColor;
+
+                if (wolfWin)
+                {
+                    color = !isLover && isWolf ? villagerColor : wolfColor;
+                    clip = !isLover && isWolf ? "VICTORY" : "DEFEAT";
+                }
+                else
+                {
+                    color = !isLover && !isWolf ? villagerColor : wolfColor;
+                    clip = !isLover && !isWolf ? "VICTORY" : "DEFEAT";
+                }
+
+                translateKey = (wolfWin ? "UI_WOLVES_WIN" : "UI_VILLAGERS_WIN");
+            }
 
             AudioManager.Play(clip, AudioManager.MixerTarget.SFX, 0.5f);
-            string translateKey = "CUPIDON_LOVERS_VICTORY";
-            GameManager.Instance.gameUI.UpdateWolvesRecap(loversName);
             GameManager.Instance.gameUI.UpdateTransitionText(translateKey, color);
             GameManager.Instance.gameUI.ShowWolvesRecap(active: true);
             GameManager.Instance.gameUI.StartFade(fadeIn: true);

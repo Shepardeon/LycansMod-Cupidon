@@ -49,6 +49,7 @@ namespace Cupidon
             GameManagerPatch.Hook();
             GameSettingsUIPatch.Hook();
             GameStatePatch.Hook();
+            LocalCameraHandlerPatch.Hook();
 
             Log.Info("Initialization done!");
         }
@@ -68,6 +69,7 @@ namespace Cupidon
             GameManagerPatch.Unhook();
             GameSettingsUIPatch.Unhook();
             GameStatePatch.Unhook();
+            LocalCameraHandlerPatch.Unhook();
         }
 
         public static void UpdateLoverText(string loverName)
