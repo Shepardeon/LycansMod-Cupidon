@@ -147,7 +147,7 @@ namespace Cupidon.Unity
 
         public void InitLovers()
         {
-            if (!CupidonMode)
+            if (!CupidonMode || GameManager.Instance.BattleRoyale)
             {
                 Log.Debug("Cupidon mode disabled, skipping selection");
                 return;

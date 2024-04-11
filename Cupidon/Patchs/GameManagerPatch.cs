@@ -105,7 +105,7 @@ namespace Cupidon.Patchs
                         CupidonPlugin.Cupidon.UpdateLoversWin(true);
                         GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
                     }
-                    else if (numLovers >= numNonWolves && numWolves == 1)
+                    else if (numLovers >= numNonWolves-1 && numWolves == 1)
                     {
                         CupidonPlugin.Cupidon.UpdateLoversWin(true);
                         GameManager.Rpc_EndGame(self.Runner, wolfWin: false);
@@ -150,7 +150,8 @@ namespace Cupidon.Patchs
             Color wolfColor = GameUI.WolfColor;
             Color loverColor = CupidonPlugin.LoverColor;
 
-            if (CupidonPlugin.Cupidon == null || !CupidonPlugin.Cupidon.CupidonMode || CupidonPlugin.Cupidon.CheckLoversSameTeam())
+            if (CupidonPlugin.Cupidon == null || !CupidonPlugin.Cupidon.CupidonMode 
+                || CupidonPlugin.Cupidon.CheckLoversSameTeam() || GameManager.Instance.BattleRoyale)
             {
                 GameManager.Instance.gameUI.wolvesRecap.color = GameUI.WolfColor;
                 orig(runner, wolfWin);
