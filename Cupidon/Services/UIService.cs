@@ -102,7 +102,7 @@ namespace Cupidon.Services
                 return null;
             }
 
-            var clone = UnityEngine.Object.Instantiate(orig, orig.parent);
+            var clone = UnityEngine.Object.Instantiate(orig, GameManager.Instance.gameUI.fixedMenu.transform);
             var localizedString = clone.GetComponent<LocalizeStringEvent>();
             var renderText = clone.GetComponent<TextMeshProUGUI>();
 

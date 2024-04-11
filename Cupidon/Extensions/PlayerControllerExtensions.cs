@@ -4,18 +4,18 @@ namespace Cupidon.Extensions
 {
     internal static class PlayerControllerExtensions
     {
-        public static bool IsLover(this PlayerController player)
+        public static bool IsLover(this PlayerController? player)
         {
-            if (CupidonPlugin.Cupidon == null || CupidonPlugin.Cupidon.CupidonLovers.Count == 0)
+            if (CupidonPlugin.Cupidon == null || CupidonPlugin.Cupidon.CupidonLovers.Count == 0 || player == null)
                 return false;
 
             var playerRef = PlayerRegistry.Instance.ObjectByRef.FirstOrDefault(o => o.Value == player).Key;
             return CupidonPlugin.Cupidon.CheckLover(playerRef);
         }
 
-        public static void SetLover(this PlayerController player)
+        public static void SetLover(this PlayerController? player)
         {
-            if (CupidonPlugin.Cupidon == null || CupidonPlugin.Cupidon.CupidonLovers.Count >= 2)
+            if (CupidonPlugin.Cupidon == null || CupidonPlugin.Cupidon.CupidonLovers.Count >= 2 || player == null)
             {
                 Log.Error("Tried to add a new user to lovers but there can be only Two!");
                 return;

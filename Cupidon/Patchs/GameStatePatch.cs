@@ -21,6 +21,20 @@ namespace Cupidon.Patchs
         {
             orig(self);
 
+            var onPregameEnter = self.StateMachine[EGameState.Pregame].onEnter;
+            self.StateMachine[EGameState.Pregame].onEnter = (EGameState previousState) =>
+            {
+                onPregameEnter(previousState);
+
+                if (self.Runner.IsPlayer)
+                {
+                    if (previousState == EGameState.EndGame)
+                    {
+                        CupidonPlugin.CupidonText?.TextGO.SetActive(false);
+                    }
+                }
+            };
+
             var onPlayEnter = self.StateMachine[EGameState.Play].onEnter;
             self.StateMachine[EGameState.Play].onEnter = (EGameState previousState) =>
             {
@@ -44,7 +58,7 @@ namespace Cupidon.Patchs
                                 .Select(p => p.PlayerData.Username)
                                 .FirstOrDefault();
 
-                            CupidonPlugin.UpdateLoverText(other.ToString() ?? "");
+                            CupidonPlugin.UpdateLoverText(other.ToString());
                             CupidonPlugin.CupidonText?.TextGO.SetActive(true);
                         }
                         else

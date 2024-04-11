@@ -14,7 +14,7 @@ namespace Cupidon
         public const string PLUGIN_GUID = $"fr.shepardeon.plugins.cupidon";
         public const string PLUGIN_AUTHOR = "Shepardeon";
         public const string PLUGIN_NAME = "Cupidon";
-        public const string PLUGIN_VERSION = "1.0.0";
+        public const string PLUGIN_VERSION = "1.1.0";
 
         public static readonly Color LoverColor = new Color(0.83f, 0.09f, 0.63f);
 
@@ -49,6 +49,7 @@ namespace Cupidon
             GameManagerPatch.Hook();
             GameSettingsUIPatch.Hook();
             GameStatePatch.Hook();
+            LocalCameraHandlerPatch.Hook();
 
             Log.Info("Initialization done!");
         }
@@ -68,6 +69,7 @@ namespace Cupidon
             GameManagerPatch.Unhook();
             GameSettingsUIPatch.Unhook();
             GameStatePatch.Unhook();
+            LocalCameraHandlerPatch.Unhook();
         }
 
         public static void UpdateLoverText(string loverName)
