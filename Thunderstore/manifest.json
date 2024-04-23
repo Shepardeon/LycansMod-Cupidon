@@ -1,0 +1,10 @@
+{
+	"name": "Cupidon",
+	"version_number": "1.1.0",
+	"website_url": "https://github.com/Shepardeon/LycansMod-Cupidon",
+	"description": "Ajoute les amoureux de manière optionnelle dans le jeu.",
+	"dependencies": [
+		"BepInEx-BepInExPack-5.4.2100",
+		"LycansModding-HookGenPatcher-1.0.0"
+	]
+}
